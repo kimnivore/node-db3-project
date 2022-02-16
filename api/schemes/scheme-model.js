@@ -23,15 +23,18 @@ function find() { // EXERCISE A
 }
 
 function findById(scheme_id) { // EXERCISE B
+  return db('schemes as sc')
+    .leftJoin('steps as st', 'sc.scheme_id', 'st.scheme_id')
+    .orderBy('st.step_number', 'asc')
+    .select('sc.scheme_name', 'st.step_id', 'st.step_number', 'st.instructions', 'st.scheme_id')
+    .where('sc.scheme_id', scheme_id )
+   
+
   /*
     1B- Study the SQL query below running it in SQLite Studio against `data/schemes.db3`:
 
-      SELECT
-          sc.scheme_name,
-          st.*
-      FROM schemes as sc
-      LEFT JOIN steps as st
-          ON sc.scheme_id = st.scheme_id
+      SELECT sc.scheme_name, st.* FROM schemes as sc
+      LEFT JOIN steps as st ON sc.scheme_id = st.scheme_id
       WHERE sc.scheme_id = 1
       ORDER BY st.step_number ASC;
 
@@ -114,6 +117,11 @@ function findSteps(scheme_id) { // EXERCISE C
 }
 
 function add(scheme) { // EXERCISE D
+  return db('schemes')
+    .insert(scheme)
+    .then(([scheme_id]) => {
+      return findById(scheme_id)
+    })
   /*
     1D- This function creates a new scheme and resolves to _the newly created scheme_.
   */
