@@ -33,7 +33,7 @@ const validateScheme = (req, res, next) => {
     scheme_name === undefined || 
     typeof scheme_name !== 'string' ||
     !scheme_name.trim()
-    ) {
+  ) {
     next({ status: 400, message: 'invalid scheme_name' })
   } else {
     next()
@@ -51,10 +51,18 @@ const validateScheme = (req, res, next) => {
 */
 const validateStep = (req, res, next) => {
   const { instructions, step_number } = req.body;
-  if(!instructions || !instructions.trim() || (step_number < 1) || (step_number == isNaN)) {
-    next({ status: 400, message: 'invalid step'})
+
+  if(
+    instructions === undefined ||
+    typeof instructions !== 'string' ||
+    !instructions.trim() || 
+    typeof step_number !== 'number' ||
+    step_number < 1 
+  ) {
+    const error = { status: 400, message: 'invalid step' }
+    next(error)
   } else {
-    req.body.instructions = req.body.instructions.trim();
+    next()
   }
 }
 
