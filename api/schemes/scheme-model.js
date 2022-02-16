@@ -5,15 +5,17 @@ function find() { // EXERCISE A
     .leftJoin('steps as st', 'sc.scheme_id', 'st.scheme_id')
     .groupBy('sc.scheme_id')
     .orderBy('sc.scheme_id', 'asc')
-    .select('sc.scheme_id', 'sc.scheme_name')
+    .select('sc.*')
     .count('st.step_id as number_of_steps')
   
   /*
     1A- Study the SQL query below running it in SQLite Studio against `data/schemes.db3`.
     What happens if we change from a LEFT join to an INNER join?
 
-      SELECT sc.*, count(st.step_id) as number_of_steps FROM schemes as sc
-      LEFT JOIN steps as st ON sc.scheme_id = st.scheme_id
+      SELECT sc.*, count(st.step_id) as number_of_steps 
+      FROM schemes as sc
+      LEFT JOIN steps as st 
+        ON sc.scheme_id = st.scheme_id
       GROUP BY sc.scheme_id
       ORDER BY sc.scheme_id ASC;
 
@@ -22,19 +24,41 @@ function find() { // EXERCISE A
   */
 }
 
-function findById(scheme_id) { // EXERCISE B
-  return db('schemes as sc')
+async function findById(scheme_id) { // EXERCISE B
+ const rows = await db('schemes as sc')
     .leftJoin('steps as st', 'sc.scheme_id', 'st.scheme_id')
-    .orderBy('st.step_number', 'asc')
-    .select('sc.scheme_name', 'st.step_id', 'st.step_number', 'st.instructions', 'st.scheme_id')
+    .select('sc.scheme_name', 'st.*', 'sc.scheme_id')
     .where('sc.scheme_id', scheme_id )
-   
+    .orderBy('st.step_number', 'asc')
+ 
+ const result = {
+   scheme_id: rows[0].scheme_id,
+   scheme_name: rows[0].scheme_name,
+   steps: []
+ }
+
+ rows.forEach(row => {
+   if (row.step_id) {
+     result.steps.push({
+       step_id: row.step_id,
+       step_number: row.step_number,
+       instructions: row.instructions,
+     })
+   }
+ })
+ return result;
+
+
+
+
 
   /*
     1B- Study the SQL query below running it in SQLite Studio against `data/schemes.db3`:
 
-      SELECT sc.scheme_name, st.* FROM schemes as sc
-      LEFT JOIN steps as st ON sc.scheme_id = st.scheme_id
+      SELECT sc.scheme_name, st.* 
+      FROM schemes as sc
+      LEFT JOIN steps as st 
+        ON sc.scheme_id = st.scheme_id
       WHERE sc.scheme_id = 1
       ORDER BY st.step_number ASC;
 
@@ -93,7 +117,22 @@ function findById(scheme_id) { // EXERCISE B
   */
 }
 
-function findSteps(scheme_id) { // EXERCISE C
+async function findSteps(scheme_id) { // EXERCISE C
+  const rows =  db('schemes as sc')
+    .leftJoin('steps as st', 'sc.scheme_id', 'st.scheme_id')
+    .select('step_id', 'st.step_number', 'st.instructions', 'sc.scheme_name')
+    .where('sc.scheme_id', scheme_id)
+    .orderBy('st.step_number', 'asc')
+
+  if(!rows[0].step_id) return []
+  return rows
+
+  
+  // SELECT st.step_id, st.step_number, st.instructions, sc.scheme_name FROM schemes as sc
+  // LEFT JOIN steps as st ON sc.scheme_id = st.scheme_id
+  // WHERE sc.scheme_id = 1
+  // ORDER BY st.step_number ASC;
+  
   /*
     1C- Build a query in Knex that returns the following data.
     The steps should be sorted by step_number, and the array
