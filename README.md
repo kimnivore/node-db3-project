@@ -70,17 +70,50 @@ Use a graphical tool like SQLite Studio to open `./data/northwind.db3` and execu
 (Write the queries inside `./queries.sql` under the corresponding comment)
 
 - Display the ProductName and CategoryName for all products in the database. Returns 77 records.
+
+select p.productname from product as p
+join category as c on p.categoryid = c.id;
+
 - Display the order Id and shipper CompanyName for all orders placed before August 9 2012. Returns 429 records.
+
+SELECT o.id, s.companyname from order as o
+JOIN shipper as s on o.shipvia = s.id
+where o.orderdate < 2012-08-09;
+
 - Display the name and quantity of the products ordered in order with Id 10251. Sort by ProductName. Returns 3 records.
+
+select p.productname, o.quantity from orderdetail as o
+join product as p on o.productid = p.id
+where OrderId = 10251
+order by p.productname;
+
 - Display the OrderID, customer's Company Name and the employee's Last Name for every order. All columns should be labeled clearly. Returns 16,789 records.
+
+select o.orderid, c.companyname, e.lastname from order as o
+join customer as c on c.id = o.customerid
+join employee as e on e.id = o.employeeid;
+
 
 ## Task 4: Stretch Problems
 
 In [SQL Try Editor at W3Schools.com](https://www.w3schools.com/Sql/tryit.asp?filename=trysql_select_top):
 
 - Find the number of shipments by each shipper.
+
+SELECT COUNT(*) FROM ORDERS 
+GROUP BY SHIPPERID;
+
 - Find the top 5 best performing employees measured in number of orders.
+
+SELECT COUNT(*) FROM ORDERS 
+GROUP BY EMPLOYEEID
+ORDER BY COUNT(*) DESC
+LIMIT 5;
+
+
 - Find the top 5 best performing employees measured in revenue.
+
+
 - Find the category that brings in the least revenue.
 - Find the customer country with the most orders.
 - Find the shipper that moves the most cheese measured in units.
